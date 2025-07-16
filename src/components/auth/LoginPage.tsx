@@ -11,11 +11,11 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const [confirmPassword, setConfirmPassword] = useState('')
 
     async function handleLogin(e: React.FormEvent) {
         e.preventDefault()
 
-        console.log(email, password)
         try {
             const res = await fetch("https://octochord.onrender.com/auth/user", {
                 method: "POST",
@@ -37,6 +37,34 @@ export default function LoginPage() {
             console.log("Login succeeded.")
         } catch (err) {
             console.log("Login failed.", err)
+        }
+    }
+
+    async function handleRegister(e: React.FormEvent) {
+        e.preventDefault()
+
+        if (password !== confirmPassword) {
+            alert("Passwords don't match.")
+            return
+        }
+
+        try {
+            const res = await fetch("https://octochord.onrender.com/user", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, password })
+            })
+            if (!res.ok) {
+                alert("Registration failed. ")
+                return
+            }
+
+            const data = await res.json()
+
+            console.log("User registred.", data)
+            alert("Your account is now set up!")
+        } catch (err) {
+            console.error("Registration failed:", err)
         }
     }
 
@@ -106,12 +134,12 @@ export default function LoginPage() {
                         </TabsContent>
 
                         <TabsContent value="register">
-                            <form className="space-y-4">
+                            <form onSubmit={handleRegister} className="space-y-4">
                                 <div className="space-y-4">
                                     <Label htmlFor="name">Name</Label>
                                     <Input
                                         id="name"
-                                        type="password"
+                                        type="text"
                                         placeholder="Enter your full name"
                                         required />
 
@@ -141,6 +169,8 @@ export default function LoginPage() {
                                         id="confirm-password"
                                         type="password"
                                         placeholder="Confirm your password"
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        value={confirmPassword}
                                         required
                                     />
 
