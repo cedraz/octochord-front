@@ -6,6 +6,7 @@ import { Label } from "../ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { EyeOff, Eye, Github } from "lucide-react"
 import Cookies from "js-cookie"
+import { Link } from "react-router"
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
@@ -127,7 +128,7 @@ export default function LoginPage() {
                                         <Checkbox id="remember" />
                                         <Label htmlFor="remember">Remember me</Label>
                                     </div>
-                                    <a href="#" className="text-sm text-gray-500 hover:text-gray-600">Forgot password?</a>
+                                    <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-gray-600">Forgot password?</Link>
                                 </div>
                                 <Button type="submit" className="w-full">Sign In</Button>
                             </form>
