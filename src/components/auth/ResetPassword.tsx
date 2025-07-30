@@ -27,7 +27,7 @@ export default function ResetPassword() {
         setIsSubmitting(true)
 
         try {
-            const res = await fetch("https://octochord.onrender.com/user/profile/change-password", {
+            const res = await fetch("https://octochord.cedraz.dev/user/profile/change-password", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token, password: newPassword })

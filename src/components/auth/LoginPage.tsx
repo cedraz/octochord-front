@@ -9,6 +9,7 @@ import Cookies from "js-cookie"
 import { Link } from "react-router"
 
 export default function LoginPage() {
+    const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -18,7 +19,7 @@ export default function LoginPage() {
         e.preventDefault()
 
         try {
-            const res = await fetch("https://octochord.onrender.com/auth/user", {
+            const res = await fetch("https://octochord.cedraz.dev/auth/user", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
@@ -50,7 +51,7 @@ export default function LoginPage() {
         }
 
         try {
-            const res = await fetch("https://octochord.onrender.com/user", {
+            const res = await fetch("https://octochord.cedraz.dev/user", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password })
@@ -108,7 +109,7 @@ export default function LoginPage() {
                                     <div className="relative">
                                         <Input
                                             id="password"
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             placeholder="Enter your password"
                                             onChange={(e) => setPassword(e.target.value)}
                                             value={password}
@@ -142,6 +143,8 @@ export default function LoginPage() {
                                         id="name"
                                         type="text"
                                         placeholder="Enter your full name"
+                                        onChange={(e) => setName(e.target.value)}
+                                        value={name}
                                         required />
 
                                     <Label htmlFor="email">Email</Label>
@@ -158,7 +161,7 @@ export default function LoginPage() {
                                     <div className="relative">
                                         <Input
                                             id="password"
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             placeholder="Create a password"
                                             onChange={(e) => setPassword(e.target.value)}
                                             value={password}
@@ -168,7 +171,7 @@ export default function LoginPage() {
                                     <Label htmlFor="confirm-password">Confirm Password</Label>
                                     <Input
                                         id="confirm-password"
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         placeholder="Confirm your password"
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         value={confirmPassword}

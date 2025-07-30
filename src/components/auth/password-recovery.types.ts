@@ -1,0 +1,5 @@
+enum OTCType {
+    EMAIL_VERIFICATION,
+    PASSWORD_RESET
+
+}
