@@ -1,25 +1,26 @@
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { InputOTP } from "../ui/input-otp";
 
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [code, setCode] = useState("")
-    const [resetToken, setResetToken] = useState("")
     const [step, setStep] = useState(1)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    //1st step: sending one-time-code
+    // 1st step: sending one-time-code
     async function handleOneTimeCode(e: React.FormEvent) {
         e.preventDefault();
         setIsSubmitting(true)
 
         try {
+
             //Ícaro - start
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 50000); // Timeout de 5 segundos
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 5 segundos
 
             const response = await fetch("https://octochord.cedraz.dev/one-time-code/create-one-time-code", {
                 method: "POST",
@@ -50,12 +51,13 @@ export default function ForgotPassword() {
         }
     }
 
-    //2nd step: validating code
+    // 2nd step: validating code
     async function handleCodeValidation(e: React.FormEvent) {
         e.preventDefault();
         setIsSubmitting(true)
 
         try {
+
             const response = await fetch("https://octochord.cedraz.dev/one-time-code/validate-one-time-code", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -69,15 +71,16 @@ export default function ForgotPassword() {
                 return;
             }
 
-            //saving JWT token
+            // saving JWT token with sessionStorage instead of useState (safier)
             if (data?.token) {
-                setResetToken(data.token);
+                sessionStorage.setItem("resetToken", data.token);
                 alert("Code validated! You can now reset your password.");
                 setStep(3);
             } else {
                 alert("No token received.")
                 console.log(data)
             }
+
         } catch (err) {
             console.log(err)
             alert("Something went wrong.")
@@ -86,12 +89,21 @@ export default function ForgotPassword() {
         }
     }
 
-    //3rd step: reseting password
+    // 3rd step: reseting password
     async function handleResetPassword(e: React.FormEvent) {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
+
+            const resetToken = sessionStorage.getItem("resetToken");
+
+            if (!resetToken) {
+                alert("Token is missing. Please start over.");
+                setStep(1)
+                return;
+            }
+
             const response = await fetch("https://octochord.cedraz.dev/user/recover-password", {
                 method: "POST",
                 headers: {
@@ -110,6 +122,7 @@ export default function ForgotPassword() {
             setEmail("");
             setCode("");
             setNewPassword("");
+            sessionStorage.removeItem("resetToken");
             setStep(1);
 
         } catch (err) {
@@ -118,9 +131,7 @@ export default function ForgotPassword() {
         } finally {
             setIsSubmitting(false)
         }
-
     }
-
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
