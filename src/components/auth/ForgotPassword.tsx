@@ -10,7 +10,7 @@ export default function ForgotPassword() {
     const [code, setCode] = useState("")
     const [step, setStep] = useState(1)
     const [isSubmitting, setIsSubmitting] = useState(false)
-
+    const baseUrl = import.meta.env.VITE_API_URL
     // 1st step: sending one-time-code
     async function handleOneTimeCode(e: React.FormEvent) {
         e.preventDefault();
@@ -22,7 +22,7 @@ export default function ForgotPassword() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 5 segundos
 
-            const response = await fetch("https://octochord.cedraz.dev/one-time-code/create-one-time-code", {
+            const response = await fetch(`${baseUrl}/one-time-code/create-one-time-code`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ identifier: email, type: "PASSWORD_RESET" }),
@@ -58,7 +58,7 @@ export default function ForgotPassword() {
 
         try {
 
-            const response = await fetch("https://octochord.cedraz.dev/one-time-code/validate-one-time-code", {
+            const response = await fetch(`${baseUrl}/one-time-code/validate-one-time-code`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ identifier: email, type: "PASSWORD_RESET", code })
@@ -104,13 +104,13 @@ export default function ForgotPassword() {
                 return;
             }
 
-            const response = await fetch("https://octochord.cedraz.dev/user/recover-password", {
+            const response = await fetch(`${baseUrl}/user/recover-password`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${resetToken}`,
                 },
-                body: JSON.stringify({ email, code, password: newPassword })
+                body: JSON.stringify({ email, password: newPassword })
             })
 
             if (!response.ok) {
