@@ -105,8 +105,8 @@ export default function ForgotPassword() {
                 return;
             }
 
-            const response = await fetch(`${baseUrl}/user/recover-password`, {
-                method: "POST",
+            const response = await fetch(`${baseUrl}/auth/recover-password`, {
+                method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${resetToken}`,

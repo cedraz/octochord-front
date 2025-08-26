@@ -2,11 +2,13 @@ import { useState } from "react"
 import { Button } from "../ui/button"
 import { Checkbox } from "../ui/checkbox"
 import { Input } from "../ui/input"
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp"
 import { Label } from "../ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { EyeOff, Eye, Github } from "lucide-react"
 import Cookies from "js-cookie"
 import { Link } from "react-router"
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 
 export default function LoginPage() {
     const [name, setName] = useState('');
@@ -14,29 +16,32 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [code, setCode] = useState("")
+    const [step, setStep] = useState<"login" | "register" | "verify">("login")
+    const baseUrl = import.meta.env.VITE_API_URL
 
     async function handleLogin(e: React.FormEvent) {
         e.preventDefault()
 
         try {
-            const res = await fetch("https://octochord.cedraz.dev/auth/user", {
+            const response = await fetch(`${baseUrl}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             })
 
-            if (!res.ok) {
+            if (!response.ok) {
                 alert("Invalid login credentials.")
                 return
             }
 
-            const data = await res.json()
+            const data = await response.json()
 
             // js-cookies
             Cookies.set("accessToken", data.accessToken),
                 Cookies.set("refreshToken", data.refreshToken)
 
-            console.log("Login succeeded.")
+            alert("Login succeeded.")
         } catch (err) {
             console.log("Login failed.", err)
         }
@@ -51,22 +56,48 @@ export default function LoginPage() {
         }
 
         try {
-            const res = await fetch("https://octochord.cedraz.dev/user", {
+            const response = await fetch(`${baseUrl}/user`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name, email, password })
             })
-            if (!res.ok) {
+
+            if (!response.ok) {
                 alert("Registration failed. ")
                 return
             }
 
-            const data = await res.json()
+            const data = await response.json()
 
             console.log("User registred.", data)
-            alert("Your account is now set up!")
+            setStep("verify")
+            //alert("Your account is now set up!")
         } catch (err) {
             console.error("Registration failed:", err)
+        }
+    }
+
+    async function handleVerify(e: React.FormEvent) {
+        e.preventDefault()
+
+        try {
+            const response = await fetch(`${baseUrl}/auth/verify-email`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, code })
+            });
+
+            if (!response.ok) {
+                alert("Invalid or expired code.")
+                return
+            }
+
+            alert("Email verification done! You can now login.")
+            setStep("login")
+            setCode("")
+
+        } catch (err) {
+            console.log("Verification failed:", err);
         }
     }
 
@@ -81,110 +112,128 @@ export default function LoginPage() {
                     <p className="text-muted-foreground">Track your GitHub activity in real-time</p>
                 </div>
 
-                <section className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
-                    <header className="text-center space-y-2">
-                        <h1 className="text-3xl font-bold tracking-tighter">Welcome</h1>
-                        <p className="text-muted-foreground">Sign in to your account or create a new one</p>
-                    </header>
-                    <Tabs defaultValue="login" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 mb-4">
-                            <TabsTrigger value="login">Sign In</TabsTrigger>
-                            <TabsTrigger value="register">Sign Up</TabsTrigger>
-                        </TabsList>
+                {step === "verify" ? (
+                    <form onSubmit={handleVerify} className="space-y-4">
+                        <h2 className="text-xl font-bold">Verify your email address</h2>
+                        <p>A verification code has been sent to {email}.</p>
+                        <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
+                            <InputOTPGroup>
+                                <InputOTPSlot index={0} />
+                                <InputOTPSlot index={1} />
+                                <InputOTPSlot index={2} />
+                                <InputOTPSlot index={3} />
+                                <InputOTPSlot index={4} />
+                                <InputOTPSlot index={5} />
+                            </InputOTPGroup>
+                        </InputOTP>
+                        <Button type="submit" className="w-full mt-4">Verify</Button>
 
-                        <TabsContent value="login">
-                            <form onSubmit={handleLogin} className="space-y-4">
-                                <div className="space-y-4">
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="Enter your email"
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        value={email}
-                                        required
-                                    />
+                    </form>
+                ) : (
+                    <section className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+                        <header className="text-center space-y-2">
+                            <h1 className="text-3xl font-bold tracking-tighter">Welcome</h1>
+                            <p className="text-muted-foreground">Sign in to your account or create a new one</p>
+                        </header>
+                        <Tabs defaultValue="login" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2 mb-4">
+                                <TabsTrigger value="login">Sign In</TabsTrigger>
+                                <TabsTrigger value="register">Sign Up</TabsTrigger>
+                            </TabsList>
 
-                                    <Label htmlFor="password">Password</Label>
-                                    <div className="relative">
+                            <TabsContent value="login">
+                                <form onSubmit={handleLogin} className="space-y-4">
+                                    <div className="space-y-4">
+                                        <Label htmlFor="email">Email</Label>
                                         <Input
-                                            id="password"
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="Enter your password"
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            value={password}
+                                            id="email"
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            value={email}
                                             required
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                                        </button>
+
+                                        <Label htmlFor="password">Password</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="password"
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Enter your password"
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                value={password}
+                                                required
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center justify-between space-y-4">
-                                    <div className="flex items-center space-x-2">
-                                        <Checkbox id="remember" />
-                                        <Label htmlFor="remember">Remember me</Label>
+                                    <div className="flex items-center justify-between space-y-4">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox id="remember" />
+                                            <Label htmlFor="remember">Remember me</Label>
+                                        </div>
+                                        <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-gray-600">Forgot password?</Link>
                                     </div>
-                                    <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-gray-600">Forgot password?</Link>
-                                </div>
-                                <Button type="submit" className="w-full">Sign In</Button>
-                            </form>
-                        </TabsContent>
+                                    <Button type="submit" className="w-full">Sign In</Button>
+                                </form>
+                            </TabsContent>
 
-                        <TabsContent value="register">
-                            <form onSubmit={handleRegister} className="space-y-4">
-                                <div className="space-y-4">
-                                    <Label htmlFor="name">Name</Label>
-                                    <Input
-                                        id="name"
-                                        type="text"
-                                        placeholder="Enter your full name"
-                                        onChange={(e) => setName(e.target.value)}
-                                        value={name}
-                                        required />
-
-                                    <Label htmlFor="email">Email</Label>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="Enter your email"
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        value={email}
-                                        required
-                                    />
-
-                                    <Label htmlFor="password">Password</Label>
-                                    <div className="relative">
+                            <TabsContent value="register">
+                                <form onSubmit={handleRegister} className="space-y-4">
+                                    <div className="space-y-4">
+                                        <Label htmlFor="name">Name</Label>
                                         <Input
-                                            id="password"
+                                            id="name"
+                                            type="text"
+                                            placeholder="Enter your full name"
+                                            onChange={(e) => setName(e.target.value)}
+                                            value={name}
+                                            required />
+
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            value={email}
+                                            required
+                                        />
+
+                                        <Label htmlFor="password">Password</Label>
+                                        <div className="relative">
+                                            <Input
+                                                id="password"
+                                                type={showPassword ? "text" : "password"}
+                                                placeholder="Create a password"
+                                                onChange={(e) => setPassword(e.target.value)}
+                                                value={password}
+                                                required
+                                            />
+                                        </div>
+                                        <Label htmlFor="confirm-password">Confirm Password</Label>
+                                        <Input
+                                            id="confirm-password"
                                             type={showPassword ? "text" : "password"}
-                                            placeholder="Create a password"
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            value={password}
+                                            placeholder="Confirm your password"
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            value={confirmPassword}
                                             required
                                         />
                                     </div>
-                                    <Label htmlFor="confirm-password">Confirm Password</Label>
-                                    <Input
-                                        id="confirm-password"
-                                        type={showPassword ? "text" : "password"}
-                                        placeholder="Confirm your password"
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                        value={confirmPassword}
-                                        required
-                                    />
-
-                                </div>
-                                <Button type="submit" className="w-full mt-4">Create Account</Button>
-                            </form>
-                        </TabsContent>
-                    </Tabs>
-                </section >
-            </div >
-        </div >
+                                    <Button type="submit" className="w-full mt-4">Create Account</Button>
+                                </form>
+                            </TabsContent>
+                        </Tabs>
+                    </section>
+                )}
+            </div>
+        </div>
     )
 }
