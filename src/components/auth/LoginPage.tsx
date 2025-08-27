@@ -84,7 +84,7 @@ export default function LoginPage() {
             const response = await fetch(`${baseUrl}/auth/verify-email`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, code })
+                body: JSON.stringify({ identifier: email, code })
             });
 
             if (!response.ok) {
@@ -104,33 +104,45 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
-                <div className="text-center mb-8">
-                    <div className="flex items-center justify-center mb-4">
-                        <Github className="h-12 w-12 text-gray-900" />
-                    </div>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">GitTracker</h1>
-                    <p className="text-muted-foreground">Track your GitHub activity in real-time</p>
-                </div>
-
                 {step === "verify" ? (
-                    <form onSubmit={handleVerify} className="space-y-4">
-                        <h2 className="text-xl font-bold">Verify your email address</h2>
-                        <p>A verification code has been sent to {email}.</p>
-                        <InputOTP maxLength={6} pattern={REGEXP_ONLY_DIGITS_AND_CHARS}>
-                            <InputOTPGroup>
-                                <InputOTPSlot index={0} />
-                                <InputOTPSlot index={1} />
-                                <InputOTPSlot index={2} />
-                                <InputOTPSlot index={3} />
-                                <InputOTPSlot index={4} />
-                                <InputOTPSlot index={5} />
-                            </InputOTPGroup>
-                        </InputOTP>
-                        <Button type="submit" className="w-full mt-4">Verify</Button>
+                    <section className="bg-white rounded-2xl shadow-xl pl-8 space-y-6">
+                        <header className="text-center space-y-2">
+                            <h2 className="text-xl font-bold">Verify your email address</h2>
+                            <p className="text-muted-foreground text-sm">A verification code has been sent to <span className="font-medium">{email}</span></p>
+                        </header>
 
-                    </form>
+                        <form onSubmit={handleVerify} className="space-y-4">
+                            <div className="flex justify-center">
+                                <InputOTP
+                                    maxLength={6}
+                                    pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                                    value={code}
+                                    onChange={setCode}
+                                >
+                                    <InputOTPGroup>
+                                        <InputOTPSlot index={0} />
+                                        <InputOTPSlot index={1} />
+                                        <InputOTPSlot index={2} />
+                                        <InputOTPSlot index={3} />
+                                        <InputOTPSlot index={4} />
+                                        <InputOTPSlot index={5} />
+                                    </InputOTPGroup>
+                                </InputOTP>
+                            </div>
+                            <Button type="submit" className="w-full">Verify</Button>
+                        </form>
+                    </section>
+
                 ) : (
                     <section className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
+                        <div className="text-center mb-8">
+                            <div className="flex items-center justify-center mb-4">
+                                <Github className="h-12 w-12 text-gray-900" />
+                            </div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">GitTracker</h1>
+                            <p className="text-muted-foreground">Track your GitHub activity in real-time</p>
+                        </div>
+
                         <header className="text-center space-y-2">
                             <h1 className="text-3xl font-bold tracking-tighter">Welcome</h1>
                             <p className="text-muted-foreground">Sign in to your account or create a new one</p>

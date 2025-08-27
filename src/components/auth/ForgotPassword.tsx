@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { apiFetch } from "@/utils/apiFetch";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { InputOTP } from "../ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 
 
 export default function ForgotPassword() {
