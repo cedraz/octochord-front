@@ -1,6 +1,7 @@
 import { AudioWaveform, BookOpen, Bot, Command, Frame, GalleryVerticalEnd, Map, PieChart, Settings2, SquareTerminal } from "lucide-react";
 
-import { NavMain } from "../nav-main";
+import Main from "./Main";
+
 import { NavProjects } from "../nav-projects";
 import { NavUser } from "../nav-user";
 import { TeamSwitcher } from "../team-switcher";
@@ -142,7 +143,7 @@ export default function NavigationBar({ ...props }: React.ComponentProps<typeof 
                 <TeamSwitcher teams={data.teams} />
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={data.navMain} />
+                <Main items={data.navMain} />
                 <NavProjects projects={data.projects} />
             </SidebarContent>
             <SidebarFooter>

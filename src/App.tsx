@@ -5,6 +5,7 @@ import ProtectedRoutes from './utils/ProtectedRoutes';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
 import NotFound from './components/pages/NotFound';
+import { Toaster } from './components/ui/sonner';
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Toaster richColors position='bottom-right' />
     </BrowserRouter>
   )
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { toast } from "sonner";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 
@@ -18,7 +19,6 @@ export default function ForgotPassword() {
         setIsSubmitting(true)
 
         try {
-
             //Ícaro - start
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 5 segundos
@@ -35,18 +35,17 @@ export default function ForgotPassword() {
             const data = await response.json();
 
             if (!response.ok) {
-                alert("Invalid credentials. Check your email and try again.")
+                toast.warning("Invalid credentials. Check your email and try again.")
                 console.log(response)
                 return
             }
             console.log('resposta do back-end:', data)
-
-            alert("Code sent! Check your email.")
+            toast.success("Code sent! Check your email.")
             setStep(2)
 
         } catch (err) {
             console.log(err);
-            alert("Something went wrong.")
+            toast.error("Something went wrong.")
         } finally {
             setIsSubmitting(false);
         }
@@ -68,23 +67,23 @@ export default function ForgotPassword() {
             const data = await response.json();
 
             if (!response.ok) {
-                alert("Invalid code. Try again.");
+                toast.error("Invalid code. Try again.");
                 return;
             }
 
             // saving JWT token with sessionStorage instead of useState (safier)
             if (data?.token) {
                 sessionStorage.setItem("resetToken", data.token);
-                alert("Code validated! You can now reset your password.");
+                toast.success("Code validated! You can now reset your password.");
                 setStep(3);
             } else {
-                alert("No token received.")
+                toast.warning("No token received.")
                 console.log(data)
             }
 
         } catch (err) {
             console.log(err)
-            alert("Something went wrong.")
+            toast.error("Something went wrong.")
         } finally {
             setIsSubmitting(false)
         }
@@ -100,7 +99,7 @@ export default function ForgotPassword() {
             const resetToken = sessionStorage.getItem("resetToken");
 
             if (!resetToken) {
-                alert("Token is missing. Please start over.");
+                toast.warning("Token is missing. Please start over.");
                 setStep(1)
                 return;
             }
@@ -115,20 +114,20 @@ export default function ForgotPassword() {
             })
 
             if (!response.ok) {
-                alert("Password reset failed. Try again.");
+                toast.error("Password reset failed. Try again.");
                 return;
             }
 
-            alert("New password has successfully been set! You can now login.")
+            toast.success("New password has successfully been set! You can now login.")
+            sessionStorage.removeItem("resetToken");
             setEmail("");
             setCode("");
             setNewPassword("");
-            sessionStorage.removeItem("resetToken");
             setStep(1);
 
         } catch (err) {
             console.log(err)
-            alert("Something went wrong.")
+            toast.error('Something went wrong.')
         } finally {
             setIsSubmitting(false)
         }
@@ -153,14 +152,25 @@ export default function ForgotPassword() {
                     )}
 
                     {step === 2 && (
-                        <form onSubmit={handleCodeValidation} className="space-y-4 max-w-sm mx-auto mt-10">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-2">Enter your code</h2>
-                            <Input
-                                type="text"
-                                placeholder="Enter your code."
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                required />
+                        <form onSubmit={handleCodeValidation} className="space-y-6 max-w-sm mx-auto mt-10">
+                            <h2 className="text-2xl text-center font-bold mb-6">Enter your code</h2>
+                            <div className="flex justify-center">
+                                <InputOTP
+                                    maxLength={6}
+                                    pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+                                    value={code}
+                                    onChange={setCode}>
+                                    <InputOTPGroup>
+                                        <InputOTPSlot index={0} />
+                                        <InputOTPSlot index={1} />
+                                        <InputOTPSlot index={2} />
+                                        <InputOTPSlot index={3} />
+                                        <InputOTPSlot index={4} />
+                                        <InputOTPSlot index={5} />
+                                    </InputOTPGroup>
+                                </InputOTP>
+                            </div>
+
                             <Button type="submit" className="w-full mt-4">  {isSubmitting ? "Validating..." : "Submit"}</Button>
                         </form>
                     )}

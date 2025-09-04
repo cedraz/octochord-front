@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router"
 import { Button } from "../ui/button"
 import { Checkbox } from "../ui/checkbox"
 import { Input } from "../ui/input"
@@ -18,10 +19,13 @@ export default function LoginPage() {
     const [confirmPassword, setConfirmPassword] = useState('')
     const [code, setCode] = useState("")
     const [step, setStep] = useState<"login" | "register" | "verify">("login")
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const navigate = useNavigate();
     const baseUrl = import.meta.env.VITE_API_URL
 
     async function handleLogin(e: React.FormEvent) {
         e.preventDefault()
+        setIsSubmitting(true)
 
         try {
             const response = await fetch(`${baseUrl}/auth/login`, {
@@ -42,13 +46,17 @@ export default function LoginPage() {
                 Cookies.set("refreshToken", data.refreshToken)
 
             alert("Login succeeded.")
+            navigate("/dashboard")
         } catch (err) {
             console.log("Login failed.", err)
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
     async function handleRegister(e: React.FormEvent) {
         e.preventDefault()
+        setIsSubmitting(true)
 
         if (password !== confirmPassword) {
             alert("Passwords don't match.")
@@ -74,11 +82,14 @@ export default function LoginPage() {
             //alert("Your account is now set up!")
         } catch (err) {
             console.error("Registration failed:", err)
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
     async function handleVerify(e: React.FormEvent) {
         e.preventDefault()
+        setIsSubmitting(true)
 
         try {
             const response = await fetch(`${baseUrl}/auth/verify-email`, {
@@ -98,6 +109,8 @@ export default function LoginPage() {
 
         } catch (err) {
             console.log("Verification failed:", err);
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
@@ -105,13 +118,13 @@ export default function LoginPage() {
         <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 {step === "verify" ? (
-                    <section className="bg-white rounded-2xl shadow-xl pl-8 space-y-6">
+                    <section className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
                         <header className="text-center space-y-2">
                             <h2 className="text-xl font-bold">Verify your email address</h2>
                             <p className="text-muted-foreground text-sm">A verification code has been sent to <span className="font-medium">{email}</span></p>
                         </header>
 
-                        <form onSubmit={handleVerify} className="space-y-4">
+                        <form onSubmit={handleVerify} className="space-y-6">
                             <div className="flex justify-center">
                                 <InputOTP
                                     maxLength={6}
@@ -129,7 +142,7 @@ export default function LoginPage() {
                                     </InputOTPGroup>
                                 </InputOTP>
                             </div>
-                            <Button type="submit" className="w-full">Verify</Button>
+                            <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "Verifying..." : "Verify"}</Button>
                         </form>
                     </section>
 
@@ -192,7 +205,7 @@ export default function LoginPage() {
                                         </div>
                                         <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-gray-600">Forgot password?</Link>
                                     </div>
-                                    <Button type="submit" className="w-full">Sign In</Button>
+                                    <Button type="submit" className="w-full" disabled={isSubmitting}>{isSubmitting ? "..." : "Sign In"}</Button>
                                 </form>
                             </TabsContent>
 
@@ -239,7 +252,7 @@ export default function LoginPage() {
                                             required
                                         />
                                     </div>
-                                    <Button type="submit" className="w-full mt-4">Create Account</Button>
+                                    <Button type="submit" className="w-full mt-4" disabled={isSubmitting}>{isSubmitting ? "..." : "Create Account"}</Button>
                                 </form>
                             </TabsContent>
                         </Tabs>
