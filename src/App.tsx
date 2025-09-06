@@ -5,6 +5,7 @@ import ProtectedRoutes from './utils/ProtectedRoutes';
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
 import NotFound from './components/pages/NotFound';
+import ChangePasswordPage from './components/pages/ChangePasswordPage';
 import { Toaster } from './components/ui/sonner';
 
 
@@ -18,7 +19,9 @@ function App() {
 
 
         <Route element={<ProtectedRoutes />}>
-          <Route element={<Dashboard />} path='/dashboard' />
+          <Route element={<Dashboard />} path='/dashboard' >
+            <Route path="settings/change-password" element={<ChangePasswordPage />} />
+          </Route>
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

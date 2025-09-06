@@ -111,8 +111,8 @@ const data = {
                     url: "#",
                 },
                 {
-                    title: "Limits",
-                    url: "#",
+                    title: "Change password",
+                    url: "/dashboard/settings/change-password",
                 },
             ],
         },

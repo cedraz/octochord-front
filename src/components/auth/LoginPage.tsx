@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { EyeOff, Eye, Github } from "lucide-react"
 import Cookies from "js-cookie"
 import { Link } from "react-router"
+import { toast } from "sonner"
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 
 export default function LoginPage() {
@@ -35,7 +36,7 @@ export default function LoginPage() {
             })
 
             if (!response.ok) {
-                alert("Invalid login credentials.")
+                toast.error("Invalid login credentials.")
                 return
             }
 
@@ -45,7 +46,7 @@ export default function LoginPage() {
             Cookies.set("accessToken", data.accessToken),
                 Cookies.set("refreshToken", data.refreshToken)
 
-            alert("Login succeeded.")
+            toast.success("Login succeeded.")
             navigate("/dashboard")
         } catch (err) {
             console.log("Login failed.", err)
@@ -59,7 +60,7 @@ export default function LoginPage() {
         setIsSubmitting(true)
 
         if (password !== confirmPassword) {
-            alert("Passwords don't match.")
+            toast.warning("Passwords don't match.")
             return
         }
 
@@ -71,7 +72,7 @@ export default function LoginPage() {
             })
 
             if (!response.ok) {
-                alert("Registration failed. ")
+                toast.error("Registration failed. ")
                 return
             }
 
@@ -99,11 +100,11 @@ export default function LoginPage() {
             });
 
             if (!response.ok) {
-                alert("Invalid or expired code.")
+                toast.error("Invalid or expired code.")
                 return
             }
 
-            alert("Email verification done! You can now login.")
+            toast.success("Email verification done! You can now login.")
             setStep("login")
             setCode("")
 
