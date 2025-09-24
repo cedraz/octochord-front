@@ -10,8 +10,11 @@ Um sistema de dashboard responsivo feito em React + TypeScript + Tailwind, com f
 - :art: **UI/UX moderna** com shadcn/ui e notificações com sonner
 - :zap: **Integração com backend** para persistência de dados (tokens, refresh, etc.)
 
-## Tecnologias Utilizadas
+## :wrench: Tecnologias Utilizadas
 
 - **React + TypeScript**
 - **Vite**
 - **TailwindCSS + shadcn/ui**
+- **Sonner**
+- **Cookies** (js-cookie)
+- **API REST** (com endpoints como /auth/login, /user/profile, /auth/change-password)
