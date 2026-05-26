@@ -1,33 +1,34 @@
-import { BrowserRouter, Routes, Route } from 'react-router'
-import LoginPage from './components/auth/LoginPage';
-import Dashboard from './components/pages/Dashboard';
-import ProtectedRoutes from './utils/ProtectedRoutes';
-import ForgotPassword from './components/auth/ForgotPassword';
-import ResetPassword from './components/auth/ResetPassword';
-import NotFound from './components/pages/NotFound';
-import ChangePasswordPage from './components/pages/ChangePasswordPage';
-import { Toaster } from './components/ui/sonner';
-
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { Toaster } from "./components/ui/sonner";
+import { Login, Register, ForgotPassword } from "./components/auth";
+import Dashboard from "./components/pages/Dashboard";
+import NotFound from "./components/pages/NotFound";
+import ProtectedRoutes from "./utils/ProtectedRoutes";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<LoginPage />} path='/login' />
-        <Route element={<ForgotPassword />} path='/forgot-password' />
-        <Route element={<ResetPassword />} path='/reset-password' />
+        {/* Redirect root to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
+        {/* Auth pages */}
+        <Route path="/login"           element={<Login />} />
+        <Route path="/register"        element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
+        {/* Protected */}
         <Route element={<ProtectedRoutes />}>
-          <Route element={<Dashboard />} path='/dashboard' >
-            <Route path="settings/change-password" element={<ChangePasswordPage />} />
-          </Route>
+          <Route path="/dashboard" element={<Dashboard />} />
         </Route>
+
+        {/* Fallback */}
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <Toaster richColors position='bottom-right' />
+
+      <Toaster richColors position="bottom-right" />
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;
