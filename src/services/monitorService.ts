@@ -47,7 +47,7 @@ export interface UpdateMonitorRequest {
   url?: string;
   method?: HttpMethod;
   interval?: number;
-  updateEmailNotificationDto?: { emails: string[] } | null;
+  emails?: string[];
 }
 
 export interface MonitorQueryParams {

@@ -1,4 +1,4 @@
-# :bar_chart: Projeto: Dashboard com Autenticação (Octochord)
+# :bar_chart: Projeto: Dashboard com Autenticação (Octocord)
 
 Um sistema de dashboard responsivo feito em React + TypeScript + Tailwind, com foco em autenticação, gerenciamento de perfil e boas práticas de UX.
 

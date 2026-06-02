@@ -149,9 +149,9 @@ export default function Integrations() {
             <div className="flex flex-col gap-1.5">
               <label className="text-[11px] font-semibold tracking-widest text-gray-400 uppercase">Payload URL</label>
               <div className="flex gap-2">
-                <input readOnly value="https://api.octochord.io/v1/hooks/gh/7x2..."
+                <input readOnly value="https://api.octocord.io/v1/hooks/gh/7x2..."
                   className="flex-1 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm bg-gray-50 text-gray-600 outline-none"/>
-                <button onClick={() => { navigator.clipboard.writeText("https://api.octochord.io/v1/hooks/gh/7x2"); toast.success("Copiado!"); }}
+                <button onClick={() => { navigator.clipboard.writeText("https://api.octocord.io/v1/hooks/gh/7x2"); toast.success("Copiado!"); }}
                   className="p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 cursor-pointer transition-colors shrink-0">
                   <Copy className="w-4 h-4"/>
                 </button>

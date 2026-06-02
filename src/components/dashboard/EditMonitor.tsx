@@ -74,9 +74,7 @@ export default function EditMonitor() {
         url,
         method,
         interval,
-        updateEmailNotificationDto: emailEnabled && notifEmails.length > 0
-          ? { emails: notifEmails }
-          : null,
+        emails: emailEnabled ? notifEmails : [],
       });
       toast.success("Monitor atualizado com sucesso!");
       navigate(`/dashboard/monitors/${id}`);

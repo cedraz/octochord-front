@@ -7,7 +7,7 @@
 @tailwind utilities;
 
 @theme inline {
-  /* ── Octochord design tokens ── */
+  /* ── Octocord design tokens ── */
   --font-jetbrains: 'JetBrains Mono', monospace;
   --color-brand:           var(--brand);
   --color-brand-hover:     var(--brand-hover);
@@ -52,7 +52,7 @@
 }
 
 :root {
-  /* ── Octochord design tokens ── */
+  /* ── Octocord design tokens ── */
   --brand:              #1A6B5D;
   --brand-hover:        #155A4D;
   --page-bg:            #EEF3F8;

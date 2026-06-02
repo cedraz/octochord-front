@@ -4,6 +4,19 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+async function extractErrorMessage(res: Response): Promise<string> {
+    const text = await res.text();
+    try {
+        const json = JSON.parse(text);
+        const msg = json?.message;
+        if (Array.isArray(msg)) return msg.join(", ");
+        if (typeof msg === "string") return msg;
+    } catch {
+        // not JSON
+    }
+    return text || `Erro ${res.status}`;
+}
+
 function buildHeaders(token?: string, extra?: HeadersInit): HeadersInit {
     return {
         "Content-Type": "application/json",
@@ -87,16 +100,14 @@ export async function apiFetch<T>(
             });
 
             if (!retry.ok) {
-                const errorText = await retry.text();
-                throw new Error(`Error ${retry.status}: ${errorText}`);
+                throw new Error(await extractErrorMessage(retry));
             }
 
             return (await retry.json()) as T;
         }
 
         if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Error ${response.status}: ${errorText}`);
+            throw new Error(await extractErrorMessage(response));
         }
 
         return (await response.json()) as T;
