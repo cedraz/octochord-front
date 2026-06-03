@@ -5,8 +5,6 @@ name: deploy-octocord-front
 steps:
   - name: build-and-push
     image: plugins/docker
-    environment:
-      DOCKER_BUILDKIT: '1'
     settings:
       username:
         from_secret: docker_username
@@ -15,22 +13,32 @@ steps:
       repo: icarocedraz/octocord-front
       tags: latest
       cache_from: icarocedraz/octocord-front:latest
+      cache_to: icarocedraz/octocord-front:latest,mode=max
       build_args:
         - VITE_API_URL=https://octocord-api.cedraz.dev
+    when:
+      branch:
+        - main
+      event:
+        - push
 
-  - name: deploy-to-server
-    image: appleboy/drone-ssh
-    settings:
-      host:
-        from_secret: ssh_host
-      username:
-        from_secret: ssh_username
-      key:
-        from_secret: ssh_key
-      script:
-        - cd ~/Documentos/deploys/octocord
-        - docker pull icarocedraz/octocord-front:latest
-        - docker compose up -d --no-deps frontend-octocord
+  - name: deploy
+    image: docker:23
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
+      - name: project-files
+        path: /app
+    commands:
+      - apk add --no-cache docker-cli-compose
+      - cd /app
+      - docker compose -p octocord pull frontend-octocord
+      - docker compose -p octocord up -d --force-recreate --no-deps frontend-octocord
+    when:
+      branch:
+        - main
+      event:
+        - push
 
   - name: notificar-falha-discord
     image: appleboy/drone-discord
@@ -41,6 +49,14 @@ steps:
     when:
       status:
         - failure
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
+  - name: project-files
+    host:
+      path: /home/cedraz-ubuntu-2/Documentos/deploys/octocord
 
 trigger:
   branch:
