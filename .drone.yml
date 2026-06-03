@@ -1,0 +1,49 @@
+kind: pipeline
+type: docker
+name: deploy-octocord-front
+
+steps:
+  - name: build-and-push
+    image: plugins/docker
+    environment:
+      DOCKER_BUILDKIT: '1'
+    settings:
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
+      repo: icarocedraz/octocord-front
+      tags: latest
+      cache_from: icarocedraz/octocord-front:latest
+      build_args:
+        - VITE_API_URL=https://octocord-api.cedraz.dev
+
+  - name: deploy-to-server
+    image: appleboy/drone-ssh
+    settings:
+      host:
+        from_secret: ssh_host
+      username:
+        from_secret: ssh_username
+      key:
+        from_secret: ssh_key
+      script:
+        - cd ~/Documentos/deploys/octocord
+        - docker pull icarocedraz/octocord-front:latest
+        - docker compose up -d --no-deps frontend-octocord
+
+  - name: notificar-falha-discord
+    image: appleboy/drone-discord
+    settings:
+      webhook_url:
+        from_secret: discord_webhook
+      message: '🚨 Falha no pipeline do repositório **${DRONE_REPO}** na branch **${DRONE_BRANCH}**.'
+    when:
+      status:
+        - failure
+
+trigger:
+  branch:
+    - main
+  event:
+    - push
